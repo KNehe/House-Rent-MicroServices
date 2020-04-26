@@ -2,12 +2,15 @@ package nehe.houseservice.services;
 
 import nehe.houseservice.models.House;
 import nehe.houseservice.repositories.HouseRepository;
+import nehe.houseservice.utils.HouseNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -29,7 +32,7 @@ public class HouseService {
         return  houseRepository.save(house);
     }
 
-    public boolean deleteHouse(UUID id){
+    public boolean deleteHouse(Long id){
 
         if( findHouseById(id) ){
             houseRepository.deleteById(id);
@@ -39,16 +42,22 @@ public class HouseService {
 
     }
 
-    public boolean findHouseById(UUID id){
-         System.out.println("IDIDDDDDDDDDDDDD "+ id );
+    public boolean findHouseById(Long id){
         House house  = houseRepository.findHouseById(id);
-        System.out.println("house "+ house );
         return house != null;
     }
 
-    public Page<House> getAllHouses(int page, int number_of_records_per_page){
+    public List<House> getAllHouses(int page, int number_of_records_per_page){
 
-        return houseRepository.findAll( PageRequest.of(page , number_of_records_per_page) );
+        Pageable pageable = PageRequest.of( page, number_of_records_per_page );
+        Page<House> pagedResult = houseRepository.findAll(pageable);
+
+        if(pagedResult.hasContent()){
+            return pagedResult.getContent();
+        }else{
+            return  new ArrayList<>();
+        }
+
     }
 
     public List<House> getAllHousesByNoOfBedRooms(int no_of_bedrooms ){
@@ -69,6 +78,13 @@ public class HouseService {
     public List<House> getAllHouseNoOfBedRoomsAndLocation(int no_of_bedrooms, String location ){
 
         return houseRepository.findAllByNoOfBedRoomsAndLocationContainingIgnoreCase(no_of_bedrooms, location);
+    }
+
+    public House getHouseById(Long id) throws HouseNotFoundException {
+
+        String message = String.format("House %s not found ", id);
+
+        return houseRepository.findById(id).orElseThrow( ()-> new HouseNotFoundException(message) );
     }
 
 }

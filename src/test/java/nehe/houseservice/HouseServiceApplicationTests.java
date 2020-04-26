@@ -11,10 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -22,8 +18,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -129,7 +124,7 @@ class HouseServiceApplicationTests {
 
 		String result = mvcResult.getResponse().getContentAsString();
 
-		SuccessResponse response = gson.fromJson( result, SuccessResponse.class);
+		FailResponse response = gson.fromJson( result, FailResponse.class);
 
 		Assertions.assertEquals("House not edited",  response.getMessage() );
 
@@ -138,14 +133,14 @@ class HouseServiceApplicationTests {
 	@Test
 	void shouldFindAllHouses() throws Exception{
 
-		Pageable pageable = PageRequest.of( 1 , 1 );
+//		Pageable pageable = PageRequest.of( 1 , 1 );
 
 		List<House> houseList = new ArrayList<>();
 		houseList.add(house);
 
-		Page<House> housePage = new PageImpl<>(houseList, pageable, houseList.size() );
+//		Page<House> housePage = new PageImpl<>(houseList, pageable, houseList.size() );
 
-		when(houseService.getAllHouses( anyInt() , anyInt() )).thenReturn( housePage );
+		when(houseService.getAllHouses( anyInt() , anyInt() )).thenReturn( houseList );
 
 		MvcResult mvcResult = mockMvc.perform( get( baseUrl + "/page/1/size/1")
 
@@ -218,7 +213,7 @@ class HouseServiceApplicationTests {
 
 		String result = mvcResult.getResponse().getContentAsString();
 
-		SuccessResponse response = gson.fromJson( result, SuccessResponse.class);
+		FailResponse response = gson.fromJson( result, FailResponse.class);
 
 		Assertions.assertEquals(  "An error occurred", response.getMessage() );
 
@@ -241,7 +236,7 @@ class HouseServiceApplicationTests {
 
 		String result = mvcResult.getResponse().getContentAsString();
 
-		SuccessResponse response = gson.fromJson( result, SuccessResponse.class);
+		FailResponse response = gson.fromJson( result, FailResponse.class);
 
 		Assertions.assertEquals(  "1 Houses retrieved", response.getMessage() );
 
@@ -260,7 +255,7 @@ class HouseServiceApplicationTests {
 
 		String result = mvcResult.getResponse().getContentAsString();
 
-		SuccessResponse response = gson.fromJson( result, SuccessResponse.class);
+		FailResponse response = gson.fromJson( result, FailResponse.class);
 
 		Assertions.assertEquals(  "An error occurred", response.getMessage() );
 
@@ -301,10 +296,68 @@ class HouseServiceApplicationTests {
 
 		String result = mvcResult.getResponse().getContentAsString();
 
-		SuccessResponse response = gson.fromJson( result, SuccessResponse.class);
+		FailResponse response = gson.fromJson( result, FailResponse.class);
 
 		Assertions.assertEquals(  "An error occurred", response.getMessage() );
 
 	}
+
+	@Test
+	void shouldDeleteHouse() throws Exception{
+
+		when(houseService.deleteHouse(3L)).thenReturn( true);
+
+		MvcResult mvcResult = mockMvc.perform( delete( baseUrl + "/house/3")
+
+				.contentType(MediaType.APPLICATION_JSON_VALUE))
+				.andExpect( status().isNoContent() )
+				.andReturn();
+
+		String result = mvcResult.getResponse().getContentAsString();
+
+
+		Assertions.assertNull( null , result);
+
+	}
+
+	@Test
+	void shouldNotDeleteHouseWhenNotExists() throws Exception{
+
+		when(houseService.deleteHouse(3L)).thenReturn( false );
+
+		MvcResult mvcResult = mockMvc.perform( delete( baseUrl + "/house/3")
+
+				.contentType(MediaType.APPLICATION_JSON_VALUE))
+				.andExpect( status().isInternalServerError() )
+				.andReturn();
+
+		String result = mvcResult.getResponse().getContentAsString();
+
+		FailResponse response = gson.fromJson( result, FailResponse.class);
+
+		Assertions.assertEquals( "House not deleted" , response.getMessage() );
+
+	}
+
+
+	@Test
+	void shouldGetHouseById() throws Exception{
+
+		when(houseService.getHouseById( anyLong() )).thenReturn( any(House.class) );
+
+		MvcResult mvcResult = mockMvc.perform( get( baseUrl + "/house/3")
+				.contentType(MediaType.APPLICATION_JSON_VALUE))
+				.andExpect( status().isOk() )
+				.andReturn();
+
+		String result = mvcResult.getResponse().getContentAsString();
+
+		SuccessResponse response = gson.fromJson(result, SuccessResponse.class);
+
+		Assertions.assertEquals( String.format("House with  Id %s found", 3)  , response.getMessage() );
+
+	}
+
+
 
 }

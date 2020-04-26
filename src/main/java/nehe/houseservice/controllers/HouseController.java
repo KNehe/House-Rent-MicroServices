@@ -3,6 +3,7 @@ package nehe.houseservice.controllers;
 import nehe.houseservice.models.House;
 import nehe.houseservice.services.HouseService;
 import nehe.houseservice.utils.CustomResponse;
+import nehe.houseservice.utils.HouseNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -64,8 +65,21 @@ public class HouseController {
 
     }
 
+    @GetMapping("/house/{id}")
+    public ResponseEntity<?>  findHouseById(@PathVariable Long id) throws HouseNotFoundException {
+
+        Objects.requireNonNull(id);
+
+        House house = houseService.getHouseById(id);
+
+        return  ResponseEntity.status(HttpStatus.OK)
+                    .body(CustomResponse.successResponse(house, String.format("House with  Id %s found", id) ));
+
+
+    }
+
     @DeleteMapping("/house/{id}")
-    public ResponseEntity<?>  editHouse(@PathVariable UUID id){
+    public ResponseEntity<?>  editHouse(@PathVariable Long id){
 
         Objects.requireNonNull(id);
 
@@ -82,11 +96,11 @@ public class HouseController {
     @GetMapping("/page/{page}/size/{size}")
     public  ResponseEntity<?>  getAllHouses(@PathVariable int page, @PathVariable int size){
 
-        Page<House> data = houseService.getAllHouses(page, size);
+        List<House> data = houseService.getAllHouses(page, size);
 
         if( data != null ){
             return  ResponseEntity.status(HttpStatus.OK)
-                    .body( CustomResponse.successResponse( data, data.getNumberOfElements()+" Houses retrieved"));
+                    .body( CustomResponse.successResponse( data, data.size()+" Houses retrieved"));
         }
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -157,4 +171,6 @@ public class HouseController {
 
 
     }
+
+
 }
