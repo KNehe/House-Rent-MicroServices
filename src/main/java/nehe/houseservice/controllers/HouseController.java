@@ -96,11 +96,11 @@ public class HouseController {
     @GetMapping("/page/{page}/size/{size}")
     public  ResponseEntity<?>  getAllHouses(@PathVariable int page, @PathVariable int size){
 
-        List<House> data = houseService.getAllHouses(page, size);
+        Page<House> data = houseService.getAllHouses(page, size);
 
         if( data != null ){
             return  ResponseEntity.status(HttpStatus.OK)
-                    .body( CustomResponse.successResponse( data, data.size()+" Houses retrieved"));
+                    .body( CustomResponse.successResponse( data, data.getNumberOfElements()+" Houses retrieved"));
         }
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

@@ -11,6 +11,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -133,14 +137,14 @@ class HouseServiceApplicationTests {
 	@Test
 	void shouldFindAllHouses() throws Exception{
 
-//		Pageable pageable = PageRequest.of( 1 , 1 );
+		Pageable pageable = PageRequest.of( 1 , 1 );
 
 		List<House> houseList = new ArrayList<>();
 		houseList.add(house);
 
-//		Page<House> housePage = new PageImpl<>(houseList, pageable, houseList.size() );
+		Page<House> housePage = new PageImpl<>(houseList, pageable, houseList.size() );
 
-		when(houseService.getAllHouses( anyInt() , anyInt() )).thenReturn( houseList );
+		when(houseService.getAllHouses( anyInt() , anyInt() )).thenReturn( housePage );
 
 		MvcResult mvcResult = mockMvc.perform( get( baseUrl + "/page/1/size/1")
 

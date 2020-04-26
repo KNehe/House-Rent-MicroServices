@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,16 +48,11 @@ public class HouseService {
         return house != null;
     }
 
-    public List<House> getAllHouses(int page, int number_of_records_per_page){
+    public Page<House> getAllHouses(int page, int number_of_records_per_page){
 
-        Pageable pageable = PageRequest.of( page, number_of_records_per_page );
-        Page<House> pagedResult = houseRepository.findAll(pageable);
+        Pageable pageable = PageRequest.of( page, number_of_records_per_page , Sort.by(Sort.Direction.DESC, "id") );
 
-        if(pagedResult.hasContent()){
-            return pagedResult.getContent();
-        }else{
-            return  new ArrayList<>();
-        }
+       return  houseRepository.findAll(pageable);
 
     }
 
