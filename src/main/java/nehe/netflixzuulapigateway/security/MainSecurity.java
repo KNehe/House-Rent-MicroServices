@@ -68,15 +68,20 @@ public class MainSecurity extends WebSecurityConfigurerAdapter {
                 .formLogin().disable()
                 // dont authenticate this particular request
                 .authorizeRequests()
+
                 .antMatchers("/register").permitAll()
                 .antMatchers("/login").permitAll()
                 .antMatchers(HttpMethod.OPTIONS, "/**")
-                .permitAll().
+                .permitAll()
+                .antMatchers("/house-service/api/v1/house-service/").hasRole("Admin")
+                .antMatchers("/house-service/api/v1/house-service/house/{id}").hasRole("Admin")
                 // all other requests need to be authenticated
-                        anyRequest().authenticated().and().
+                .anyRequest().authenticated()
+
+                .and().
                 // make sure we use stateless session; session won't be used to
                 // store user's state.
-                        exceptionHandling().authenticationEntryPoint(authenticationEntryPoint).and().sessionManagement()
+                exceptionHandling().authenticationEntryPoint(authenticationEntryPoint).and().sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
         // Add a filter to validate the tokens with every request
