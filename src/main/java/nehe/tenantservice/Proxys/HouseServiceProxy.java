@@ -12,9 +12,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 @RibbonClient(name = "house-service")
 public interface HouseServiceProxy {
 
-    String url_prefix = "/api/v1/house-service/";
+    String url_prefix = "/api/v1/house-service";
 
-    @GetMapping( url_prefix + "location/{location}")
+    @GetMapping( url_prefix + "/location/{location}")
     ResponseEntity<?> getHouseByLocation(@PathVariable String location);
 
     @GetMapping( url_prefix + "/house/{id}")
