@@ -332,14 +332,8 @@ class HouseServiceApplicationTests {
 		MvcResult mvcResult = mockMvc.perform( delete( baseUrl + "/house/3")
 
 				.contentType(MediaType.APPLICATION_JSON_VALUE))
-				.andExpect( status().isInternalServerError() )
+				.andExpect( status().isNoContent() )
 				.andReturn();
-
-		String result = mvcResult.getResponse().getContentAsString();
-
-		FailResponse response = gson.fromJson( result, FailResponse.class);
-
-		Assertions.assertEquals( "House not deleted" , response.getMessage() );
 
 	}
 
