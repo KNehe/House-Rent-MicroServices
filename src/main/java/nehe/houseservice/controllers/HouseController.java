@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 
 @RestController
 @CrossOrigin
@@ -79,17 +78,14 @@ public class HouseController {
     }
 
     @DeleteMapping("/house/{id}")
-    public ResponseEntity<?>  editHouse(@PathVariable Long id){
+    public ResponseEntity<?>  editHouse(@PathVariable Long id) throws  HouseNotFoundException{
 
         Objects.requireNonNull(id);
 
-        if(houseService.deleteHouse(id)){
+           houseService.deleteHouse(id);
 
             return  ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
-        }
 
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(CustomResponse.failResponse( "House not deleted"));
 
     }
 

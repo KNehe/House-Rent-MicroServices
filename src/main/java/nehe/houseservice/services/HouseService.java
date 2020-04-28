@@ -11,9 +11,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 
 @Transactional
@@ -33,19 +31,14 @@ public class HouseService {
         return  houseRepository.save(house);
     }
 
-    public boolean deleteHouse(Long id){
+    public boolean deleteHouse(Long id) throws  HouseNotFoundException{
 
-        if( findHouseById(id) ){
+        houseRepository.findById(id)
+                .orElseThrow( ()-> new HouseNotFoundException(String.format("House with id %s not found", id)) );
+
             houseRepository.deleteById(id);
             return true;
-        }
-        return false;
 
-    }
-
-    public boolean findHouseById(Long id){
-        House house  = houseRepository.findHouseById(id);
-        return house != null;
     }
 
     public Page<House> getAllHouses(int page, int number_of_records_per_page){
